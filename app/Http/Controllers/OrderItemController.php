@@ -2,47 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OrderFormRequest;
+use App\Http\Requests\OrderItemRequest;
+use App\Models\OrderItem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class OrderItemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        // Liste tous les items avec produit et commande associés
+        $items = OrderItem::with(['product', 'order'])->get();
+        return response()->json($items);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(OrderItemRequest $request): JsonResponse
     {
-        //
+        $item = OrderItem::create($request->validated());
+
+        return response()->json($item->load(['product', 'order']), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(OrderItem $orderItem): JsonResponse
     {
-        //
+        return response()->json($orderItem->load(['product', 'order']));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(OrderItemRequest $request, OrderItem $orderItem): JsonResponse
     {
-        //
+
+        $orderItem->update($request->validated());
+        return response()->json($orderItem->load(['product', 'order']));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(OrderItem $orderItem): JsonResponse
     {
-        //
+        $orderItem->delete();
+        return response()->json(null, 204);
     }
 }
