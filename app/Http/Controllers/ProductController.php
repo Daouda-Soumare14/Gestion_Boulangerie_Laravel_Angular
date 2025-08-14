@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductFormRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -13,7 +15,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('category', 'promotions')->get();
+        $products = Product::with('category', /*'promotions'*/)->get();
         return response()->json($products);
     }
 
@@ -23,7 +25,7 @@ class ProductController extends Controller
     public function store(ProductFormRequest $request)
     {
         try {
-            $product = Product::create($request->validated());
+            $product = Product::create($this->extractData($request, new Product()));
             return response()->json($product, 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -55,7 +57,7 @@ class ProductController extends Controller
     public function update(ProductFormRequest $request, Product $product)
     {
         try {
-            $product->update($request->validated());
+            $product->update($this->extractData($request, $product));
             return response()->json($product);
         } catch (\Exception $e) {
             return response()->json([
@@ -79,5 +81,28 @@ class ProductController extends Controller
                 'status_message' => 'Erreur lors de la suppression du produit: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+
+    public function extractData(ProductFormRequest $request, Product $product): array
+    {
+        $data = $request->validated();
+
+        /** @var UploadedFile|null $photo */
+        $photo = $request->file('photo');
+
+        if (!$photo || !$photo->isValid()) {
+            return $data;
+        }
+
+        // Supprimer l'ancienne image si elle existe
+        if ($product->photo) {
+            Storage::disk('public')->delete($product->photo);
+        }
+
+        // Stocker la nouvelle image dans 'storage/app/public/products'
+        $data['photo'] = $photo->store('products', 'public');
+
+        return $data;
     }
 }

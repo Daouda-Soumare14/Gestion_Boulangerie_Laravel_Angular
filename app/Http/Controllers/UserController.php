@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginFormRequest;
-use App\Http\Requests\UserFormRequet;
+use App\Http\Requests\RegisterFormRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function register(UserFormRequet $request)
+    public function register(RegisterFormRequest $request)
     {
         try {
             $data = $request->validated();
@@ -38,10 +38,10 @@ class UserController extends Controller
     }
 
 
-    public function login(UserFormRequet $request)
+    public function login(LoginFormRequest $request)
     {
         try {
-            if (Auth::attempt($request->only('email', 'password'))) {
+            if (Auth::attempt($request->validated())) {
                 $user = auth()->user();
 
                 $token = $user->createToken("auth_token")->plainTextToken;
