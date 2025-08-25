@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,10 +14,22 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('users')->onDelete('cascade');
-            $table->enum('status', ['En Préparation', 'Prête', 'En Pivraison', 'Livrée'])->default('en préparation');
-            $table->enum('payment_mode', ['Livraison', 'En Ligne']);
+            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+
+            // Statut de la commande (validée, annulée, etc.)
+            $table->enum('order_status', ['validee', 'annulee'])->default('validee');
+
+            // Statut de la livraison
+            $table->enum('delivery_status', [
+                'en_preparation',
+                'prete',
+                'en_livraison',
+                'livree'
+            ])->default('en_preparation');
+
+            $table->enum('payment_mode', ['livraison', 'en_ligne']);
             $table->decimal('total', 10, 2);
+
             $table->timestamps();
         });
     }

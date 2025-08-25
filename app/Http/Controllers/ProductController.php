@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProductFormRequest;
+use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -13,16 +13,51 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category', /*'promotions'*/)->get();
-        return response()->json($products);
+        try {
+            $query = Product::with('category', 'promotions', 'packs');
+
+            // Filtrer par nom et description
+            if ($search = $request->search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orwhere('content', 'LIKE', '%' . $search . '%');
+                });
+            }
+
+            // Filtrer par catégorie si présent
+            if ($request->filled('category_id')) {
+                $query->where('category_id', $request->category_id);
+            }
+
+            // Filtrer par prix minimum si présent
+            if ($request->filled('min_price')) {
+                $query->where('price', '>=', $request->min_price);
+            }
+
+            // Filtrer par prix maximum si présent
+            if ($request->filled('max_price')) {
+                $query->where('price', '<=', $request->max_price);
+            }
+
+            // Exécution de la requête filtrée avec pagination
+            $products = $query->latest()->paginate(30);
+
+            return response()->json($products);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'status_message' => 'Erreur lors de la création du produit: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductFormRequest $request)
+    public function store(ProductRequest $request)
     {
         try {
             $product = Product::create($this->extractData($request, new Product()));
@@ -42,7 +77,7 @@ class ProductController extends Controller
     {
         try {
             $product = Product::with('category', 'promotions')->findOrFail($id);
-            return response()->json($product);
+            return response()->json(['data' => $product]);
         } catch (\Exception $e) {
             return response()->json([
                 'status_code' => 404,
@@ -54,7 +89,7 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductFormRequest $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
         try {
             $product->update($this->extractData($request, $product));
@@ -83,8 +118,18 @@ class ProductController extends Controller
         }
     }
 
+    public function heroProducts()
+    {
+        // Récupère les deux derniers produits ajoutés ou avec une condition spécifique
+        $products = Product::orderBy('created_at', 'desc')
+            ->take(2)
+            ->get();
 
-    public function extractData(ProductFormRequest $request, Product $product): array
+        return response()->json($products);
+    }
+
+
+    public function extractData(ProductRequest $request, Product $product): array
     {
         $data = $request->validated();
 

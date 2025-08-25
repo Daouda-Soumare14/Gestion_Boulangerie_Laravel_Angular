@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\LoginFormRequest;
-use App\Http\Requests\RegisterFormRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function register(RegisterFormRequest $request)
+    public function register(RegisterRequest $request)
     {
         try {
             $data = $request->validated();
@@ -38,7 +38,7 @@ class UserController extends Controller
     }
 
 
-    public function login(LoginFormRequest $request)
+    public function login(LoginRequest $request)
     {
         try {
             if (Auth::attempt($request->validated())) {

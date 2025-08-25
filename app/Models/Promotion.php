@@ -9,10 +9,16 @@ class Promotion extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'name',
+        'discount_type',
+        'discount_value',
+        'start_date',
+        'end_date',
+    ];
 
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'product_promotion');
+        return $this->belongsToMany(Product::class, 'product_promotions');
     }
 }

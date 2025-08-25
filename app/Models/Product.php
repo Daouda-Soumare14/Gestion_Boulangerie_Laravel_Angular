@@ -19,7 +19,14 @@ class Product extends Model
 
     public function promotions()
     {
-        return $this->belongsToMany(Promotion::class, 'product_promotion');
+        return $this->belongsToMany(Promotion::class, 'product_promotions');
+    }
+
+    public function packs()
+    {
+        return $this->belongsToMany(Pack::class, 'pack_products')
+            ->withPivot('quantity')
+            ->withTimestamps();
     }
 
     public function orderItems()
