@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\OrderFormRequest;
+
+use App\Http\Requests\OrderItemFormRequest;
 use App\Http\Requests\OrderItemRequest;
 use App\Models\OrderItem;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class OrderItemController extends Controller
 {
@@ -28,7 +28,7 @@ class OrderItemController extends Controller
     {
         return response()->json($orderItem->load(['product', 'order']));
     }
-
+    
     public function update(OrderItemRequest $request, OrderItem $orderItem): JsonResponse
     {
 

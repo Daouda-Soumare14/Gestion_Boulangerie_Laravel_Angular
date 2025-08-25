@@ -48,7 +48,7 @@ class CartController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'status_code' => 500,
-                'status_message' => 'Erreur lors de la recuperation du panier' + $e->getMessage(),
+                'status_message' => 'Erreur lors de la recuperation du panier' . $e->getMessage(),
             ]);
         }
     }
