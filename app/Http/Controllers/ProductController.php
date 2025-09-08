@@ -42,10 +42,9 @@ class ProductController extends Controller
             }
 
             // Exécution de la requête filtrée avec pagination
-            $products = $query->latest()->paginate(30);
+            $products = $query->latest()->paginate(15);
 
             return response()->json($products);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status_code' => 500,
@@ -149,5 +148,13 @@ class ProductController extends Controller
         $data['photo'] = $photo->store('products', 'public');
 
         return $data;
+    }
+
+
+    public function lowStock()
+    {
+        $products = Product::where('stock', '<=', 10)->get();
+
+        return response()->json($products);
     }
 }

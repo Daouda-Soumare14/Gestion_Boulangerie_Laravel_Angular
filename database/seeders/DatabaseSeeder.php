@@ -21,11 +21,11 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            // RolePermissionSeeder::class,
-            // CategorySeeder::class,
+            RolePermissionSeeder::class,
+            CategorySeeder::class,
             // ProductSeeder::class,
-            // PromotionSeeder::class
-            ProductPromotionSeeder::class
+            // PromotionSeeder::class,
+            // ProductPromotionSeeder::class
         ]
         );
     }

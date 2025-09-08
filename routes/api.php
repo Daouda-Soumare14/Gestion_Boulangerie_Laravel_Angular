@@ -1,7 +1,10 @@
 <?php
 
+
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\PackController;
@@ -38,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Produits publics
 Route::get('products', [ProductController::class, 'index']);
+Route::get('products/low-stock', [ProductController::class, 'lowStock']);
 Route::get('products/{id}', [ProductController::class, 'show']);
 
 // Categories publiques
@@ -55,12 +59,17 @@ Route::get('packs/{id}', [PackController::class, 'show']);
 Route::get('promotions', [PromotionController::class, 'index']);
 Route::get('promotions/{id}', [PromotionController::class, 'show']);
 
+// GenereatePdf & SendEmail public
+Route::get('invoice/download/{order}', [InvoiceController::class, 'generatePdf']);
+Route::get('invoice/send/{order}', [InvoiceController::class, 'sendInvoiceEmail']);
+
+
 
 
 // Routes protégées par authentification
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    // Produits
+    // Produits 
     Route::post('products', [ProductController::class, 'store']);
     Route::put('products/{id}', [ProductController::class, 'update']);
     Route::delete('products/{id}', [ProductController::class, 'destroy']);
@@ -95,6 +104,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // cart
     Route::get('/cart', [CartController::class, 'getCart']);
     Route::post('/cart/sync', [CartController::class, 'syncCart']);
+
+    // chat
+    Route::get('chat/messages', [ChatController::class, 'getMessages']);
+    Route::post('chat/send', [ChatController::class, 'sendMessage']);
 });
 
 
